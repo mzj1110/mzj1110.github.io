@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Prevent search engines from indexing photos, caching/archiving the page, or training AI -->
+    <meta name="robots" content="noarchive, noimageindex, nosnippet, max-image-preview:none, noai, noimageai">
+    <meta name="googlebot" content="noarchive, noimageindex, nosnippet, max-image-preview:none">
+    <meta name="googlebot-image" content="noindex, noarchive">
+    <meta name="bingbot" content="noarchive, noimageindex, nosnippet">
+
     <title>MA Zhijie | Photography Portfolio</title>
     <style>
         :root {
@@ -145,7 +152,7 @@
             font-size: 0.85rem;
         }
 
-        /* Photo Grid */
+        /* Photo Grid & Anti-Drag Protection */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -159,14 +166,30 @@
             aspect-ratio: 4 / 3;
             cursor: pointer;
             position: relative;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .gallery-item img {
+        /* Invisible protective overlay over thumbnails */
+        .gallery-item::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+        }
+
+        .gallery-item img,
+        .lightbox img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
             transition: transform 0.35s ease, opacity 0.35s ease;
+            -webkit-user-drag: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none; /* Disables long-press save on iOS */
+            pointer-events: none;
         }
 
         .gallery-item:hover img {
@@ -187,6 +210,8 @@
             align-items: center;
             flex-direction: column;
             padding: 1rem;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .lightbox.active {
@@ -194,6 +219,8 @@
         }
 
         .lightbox img {
+            width: auto;
+            height: auto;
             max-width: 90vw;
             max-height: 82vh;
             object-fit: contain;
@@ -249,6 +276,13 @@
             border-top: 1px solid var(--border-color);
         }
 
+        /* Hide photos if someone tries to print the webpage to PDF */
+        @media print {
+            #gallery-container, .lightbox {
+                display: none !important;
+            }
+        }
+
         @media (max-width: 600px) {
             header h1 { font-size: 2rem; }
             .lightbox-nav { padding: 0.5rem 0.8rem; font-size: 1.25rem; }
@@ -288,16 +322,30 @@
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" id="lightbox-close">&times;</span>
         <button class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</button>
-        <img id="lightbox-img" src="" alt="Expanded view">
+        <img id="lightbox-img" src="" alt="Expanded view" draggable="false">
         <div class="lightbox-caption" id="lightbox-caption"></div>
         <button class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</button>
     </div>
 
     <footer>
-        <p>&copy; 2026 MA Zhijie. Hosted on GitHub Pages.</p>
+        <p>&copy; 2026 MA Zhijie. All rights reserved. Do not reproduce or archive without permission.</p>
     </footer>
 
     <script>
+        // Disable right-click context menu on the gallery and lightbox
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.gallery-item') || e.target.closest('.lightbox') || e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Disable dragging images anywhere on the page
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
         // Helper function to generate arrays of photo numbers
         function range(start, end) {
             return Array.from({ length: end - start + 1 }, (_, i) => start + i);
@@ -339,18 +387,21 @@
 
         const galleryContainer = document.getElementById('gallery-container');
         const filterNav = document.getElementById('filter-nav');
-        const flatPhotoList = []; // Used for lightbox Next/Prev navigation
+        const flatPhotoList = [];
+
+        // Dynamic path builder (prevents simple regex scrapers from finding image URLs in source)
+        const folder = ['im', 'ages'].join('');
+        const prefix = ['ph', 'oto'].join('');
+        const ext = ['.j', 'pg'].join('');
 
         // Build Filter Buttons and Gallery Sections
         albums.forEach(album => {
-            // 1. Create Filter Button
             const btn = document.createElement('button');
             btn.className = 'filter-btn';
             btn.dataset.filter = album.id;
             btn.textContent = `${album.shortName} (${album.photos.length})`;
             filterNav.appendChild(btn);
 
-            // 2. Create Album Section
             const section = document.createElement('section');
             section.className = 'album-section';
             section.dataset.album = album.id;
@@ -365,16 +416,15 @@
 
             const grid = section.querySelector('.gallery-grid');
 
-            // 3. Populate Photos
             album.photos.forEach(num => {
-                const src = `images/photo${num}.jpg`;
+                const src = `${folder}/${prefix}${num}${ext}`;
                 const caption = `${album.title} — Photo #${num}`;
                 const itemIndex = flatPhotoList.length;
                 flatPhotoList.push({ src, caption });
 
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
-                item.innerHTML = `<img src="${src}" alt="${caption}" loading="lazy">`;
+                item.innerHTML = `<img src="${src}" alt="${caption}" loading="lazy" draggable="false">`;
                 item.addEventListener('click', () => openLightbox(itemIndex));
                 grid.appendChild(item);
             });
@@ -395,7 +445,7 @@
             });
         });
 
-        // Lightbox Logic (with Next/Prev & Keyboard Support)
+        // Lightbox Logic
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxCaption = document.getElementById('lightbox-caption');
