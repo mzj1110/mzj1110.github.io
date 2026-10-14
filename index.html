@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MA Zhijie | Photography Portfolio</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-color: #f5f5f5;
+            --muted-color: #a0a0a0;
+            --accent-color: #ffffff;
+            --border-color: #2a2a2a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header & Bio Section */
+        header {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 4.5rem 1.5rem 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+        }
+
+        .bio {
+            color: var(--muted-color);
+            font-size: 1.05rem;
+            margin-bottom: 1.75rem;
+        }
+
+        /* Contact Links */
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .contact-btn:hover {
+            border-color: var(--accent-color);
+            background-color: #252525;
+        }
+
+        /* Category Filter Navigation */
+        .filter-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            color: var(--muted-color);
+            border: 1px solid transparent;
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            color: var(--text-color);
+        }
+
+        .filter-btn.active {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            font-weight: 500;
+        }
+
+        /* Main Container & Sections */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .album-section {
+            margin-bottom: 4rem;
+        }
+
+        .album-header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .album-title {
+            font-size: 1.35rem;
+            font-weight: 500;
+        }
+
+        .album-count {
+            color: var(--muted-color);
+            font-size: 0.85rem;
+        }
+
+        /* Photo Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-item {
+            overflow: hidden;
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            aspect-ratio: 4 / 3;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.35s ease, opacity 0.35s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.04);
+        }
+
+        /* Lightbox Modal */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.94);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 82vh;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .lightbox-caption {
+            margin-top: 1rem;
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 28px;
+            color: #fff;
+            font-size: 2.2rem;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            font-size: 1.75rem;
+            padding: 0.75rem 1.1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted-color);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .lightbox-nav { padding: 0.5rem 0.8rem; font-size: 1.25rem; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MA Zhijie</h1>
+        <p class="bio">
+            PhD student in Electronic and Computer Engineering (ECE) at The Hong Kong University of Science and Technology (HKUST).<br>
+            Amateur Photographer. This page is a small gallery of some of my favorite photos. Hope you enjoy.
+        </p>
+        <div class="contact-links">
+            <a href="mailto:zmaal@connect.ust.hk" class="contact-btn">
+                ✉️ zmaal@connect.ust.hk
+            </a>
+            <a href="https://www.linkedin.com/in/zhijie-ma-54037a2b6/" target="_blank" rel="noopener noreferrer" class="contact-btn">
+                🔗 LinkedIn
+            </a>
+            <button class="contact-btn" id="wechat-btn" title="Click to copy WeChat ID">
+                💬 WeChat: <span id="wechat-text">c137mjz</span>
+            </button>
+        </div>
+    </header>
+
+    <nav class="filter-nav" id="filter-nav">
+        <button class="filter-btn active" data-filter="all">All Photos (98)</button>
+    </nav>
+
+    <main id="gallery-container"></main>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</button>
+        <img id="lightbox-img" src="" alt="Expanded view">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 MA Zhijie. Hosted on GitHub Pages.</p>
+    </footer>
+
+    <script>
+        // Helper function to generate arrays of photo numbers
+        function range(start, end) {
+            return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+        }
+
+        // Photo Album Configuration
+        const albums = [
+            {
+                id: "norway",
+                title: "Tromsø, Norway · Jan 2026",
+                shortName: "Tromsø",
+                photos: range(1, 36)
+            },
+            {
+                id: "italy",
+                title: "Italy · June 2025",
+                shortName: "Italy",
+                photos: range(37, 48)
+            },
+            {
+                id: "austria",
+                title: "Vienna, Austria (July 2025) & Innsbruck, Austria (Jan 2026)",
+                shortName: "Austria",
+                photos: [...range(49, 61), ...range(95, 98)]
+            },
+            {
+                id: "china",
+                title: "Changchun, China (Dec 2024) & Yantai & Qingdao, China (May 2025)",
+                shortName: "China",
+                photos: range(62, 73)
+            },
+            {
+                id: "wildlife",
+                title: "Red Panda, Butterfly, Birds",
+                shortName: "Wildlife",
+                photos: range(74, 94)
+            }
+        ];
+
+        const galleryContainer = document.getElementById('gallery-container');
+        const filterNav = document.getElementById('filter-nav');
+        const flatPhotoList = []; // Used for lightbox Next/Prev navigation
+
+        // Build Filter Buttons and Gallery Sections
+        albums.forEach(album => {
+            // 1. Create Filter Button
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.dataset.filter = album.id;
+            btn.textContent = `${album.shortName} (${album.photos.length})`;
+            filterNav.appendChild(btn);
+
+            // 2. Create Album Section
+            const section = document.createElement('section');
+            section.className = 'album-section';
+            section.dataset.album = album.id;
+
+            section.innerHTML = `
+                <div class="album-header">
+                    <h2 class="album-title">${album.title}</h2>
+                    <span class="album-count">${album.photos.length} photos</span>
+                </div>
+                <div class="gallery-grid"></div>
+            `;
+
+            const grid = section.querySelector('.gallery-grid');
+
+            // 3. Populate Photos
+            album.photos.forEach(num => {
+                const src = `images/photo${num}.jpg`;
+                const caption = `${album.title} — Photo #${num}`;
+                const itemIndex = flatPhotoList.length;
+                flatPhotoList.push({ src, caption });
+
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `<img src="${src}" alt="${caption}" loading="lazy">`;
+                item.addEventListener('click', () => openLightbox(itemIndex));
+                grid.appendChild(item);
+            });
+
+            galleryContainer.appendChild(section);
+        });
+
+        // Category Filter Logic
+        filterNav.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('filter-btn')) return;
+
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+
+            const selected = e.target.dataset.filter;
+            document.querySelectorAll('.album-section').forEach(sec => {
+                sec.style.display = (selected === 'all' || sec.dataset.album === selected) ? 'block' : 'none';
+            });
+        });
+
+        // Lightbox Logic (with Next/Prev & Keyboard Support)
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        let currentIndex = 0;
+
+        function openLightbox(index) {
+            currentIndex = index;
+            updateLightbox();
+            lightbox.classList.add('active');
+        }
+
+        function updateLightbox() {
+            const item = flatPhotoList[currentIndex];
+            lightboxImg.src = item.src;
+            lightboxCaption.textContent = item.caption;
+        }
+
+        function changePhoto(step) {
+            currentIndex = (currentIndex + step + flatPhotoList.length) % flatPhotoList.length;
+            updateLightbox();
+        }
+
+        document.getElementById('lightbox-prev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            changePhoto(-1);
+        });
+
+        document.getElementById('lightbox-next').addEventListener('click', (e) => {
+            e.stopPropagation();
+            changePhoto(1);
+        });
+
+        document.getElementById('lightbox-close').addEventListener('click', () => {
+            lightbox.classList.remove('active');
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) lightbox.classList.remove('active');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') lightbox.classList.remove('active');
+            if (e.key === 'ArrowLeft') changePhoto(-1);
+            if (e.key === 'ArrowRight') changePhoto(1);
+        });
+
+        // Copy WeChat ID on Click
+        const wechatBtn = document.getElementById('wechat-btn');
+        const wechatText = document.getElementById('wechat-text');
+        wechatBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText('c137mjz').then(() => {
+                wechatText.textContent = 'Copied!';
+                setTimeout(() => { wechatText.textContent = 'c137mjz'; }, 1800);
+            });
+        });
+    </script>
+
+</body>
+</html>
