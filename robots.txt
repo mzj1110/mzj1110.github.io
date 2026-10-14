@@ -1,0 +1,39 @@
+# Block image-specific search engine crawlers entirely
+User-agent: Googlebot-Image
+Disallow: /
+
+User-agent: Bingbot-Image
+Disallow: /
+
+# Block Internet Archive (Wayback Machine) from archiving the site and photos
+User-agent: ia_archiver
+Disallow: /
+
+# Block common AI & data scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+# Prevent all other crawlers from accessing the images folder
+User-agent: *
+Disallow: /images/
